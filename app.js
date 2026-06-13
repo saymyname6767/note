@@ -7,7 +7,7 @@ let files = {};
 let openTabs = [];
 let activeFilePath = null;
 let dirtyFiles = new Set();
-let expandedFolders = new Set(['/css', '/js']);
+let expandedFolders = new Set();
 
 let settings = {
   theme: 'theme-vscode-dark',
@@ -24,66 +24,25 @@ let saveTimeouts = {};
 let contextMenuTarget = null;
 
 // Initial Workspace Template
-const DEFAULT_WORKSPACE = {
-  "/index.html": {
-    isFolder: false,
-    content: `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AetherEdit Web Notepad</title>
-</head>
-<body>
-  <h1>AetherEdit Online Notepad</h1>
-  <p>A clean, single-pane browser notepad layout modeled after Visual Studio Code.</p>
-</body>
-</html>`
-  },
-  "/css": { isFolder: true },
-  "/css/style.css": {
-    isFolder: false,
-    content: `/* Workspace CSS Stylesheet */
-body {
-  margin: 0;
-  padding: 24px;
-  background-color: #1e1e1e;
-  color: #cccccc;
-  font-family: system-ui, sans-serif;
-}`
-  },
-  "/js": { isFolder: true },
-  "/js/script.js": {
-    isFolder: false,
-    content: `// Workspace JavaScript Code
-console.log("Welcome to your clean notepad workspace!");`
-  },
-  "/README.md": {
-    isFolder: false,
-    content: `# AetherEdit Online Notepad
+const DEFAULT_WORKSPACE = {};
 
-A single-window text notepad modeled to replicate the visual layout of Visual Studio Code.
 
-## Features
-- **Explorer Sidebar**: Add, rename, or delete files/folders. Expand/collapse tree directories.
-- **Tabs Support**: Switch between multiple documents.
-- **Auto Save**: Content saves automatically as you type.
-- **Local Openers**: Load local files and local folders directly into the workspace tree.
-- **Dynamic Themes**: VS Code Dark+, VS Code Light+, One Dark Pro, and Dracula.
-
-## Shortcuts
-- \`Ctrl + S\` : Manual save file
-- \`Ctrl + P\` : Navigate list
-- \`Right-click\` tree nodes to rename or delete them.
-`
-  }
-};
-
-// 2. Storage Helpers
 function loadFromStorage() {
-  const storedFiles = localStorage.getItem('vscode_notepad_files');
+  let storedFiles = localStorage.getItem('vscode_notepad_files');
   const storedSettings = localStorage.getItem('vscode_notepad_settings');
   
+  if (storedFiles) {
+    try {
+      const parsed = JSON.parse(storedFiles);
+      const keys = Object.keys(parsed);
+      const oldKeys = ["/index.html", "/css", "/css/style.css", "/js", "/js/script.js", "/README.md"];
+      if (keys.length === oldKeys.length && oldKeys.every(k => keys.includes(k))) {
+        localStorage.removeItem('vscode_notepad_files');
+        storedFiles = null;
+      }
+    } catch(e) {}
+  }
+
   if (storedFiles) {
     files = JSON.parse(storedFiles);
   } else {
