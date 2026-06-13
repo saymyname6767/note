@@ -35,8 +35,8 @@ function loadFromStorage() {
     try {
       const parsed = JSON.parse(storedFiles);
       const keys = Object.keys(parsed);
-      const oldKeys = ["/index.html", "/css", "/css/style.css", "/js", "/js/script.js", "/README.md"];
-      if (keys.length === oldKeys.length && oldKeys.every(k => keys.includes(k))) {
+      const defaultKeys = new Set(["/index.html", "/css", "/css/style.css", "/js", "/js/script.js", "/README.md"]);
+      if (keys.length > 0 && keys.every(k => defaultKeys.has(k))) {
         localStorage.removeItem('vscode_notepad_files');
         storedFiles = null;
       }
